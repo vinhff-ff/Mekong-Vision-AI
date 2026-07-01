@@ -1,0 +1,305 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.layout-wrapper {
+    display: flex;
+    height: 100vh;
+    background: #F0FDF4;
+    overflow: hidden;
+    position: relative;
+}
+
+// ── Sidebar ───────────────────────────────────────────────
+.layout-sidebar {
+    width: 100px;
+    height: 100vh;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 0 0 20px;
+
+    &__logo {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 16px;
+        margin-bottom: 36px;
+
+        img {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+        }
+    }
+
+    &__nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+        flex: 1;
+    }
+
+    // Token credits ở cuối sidebar
+    &__token {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        padding: 12px 10px;
+        background: #13df5e;
+        border-radius: 12px;
+        width: calc(100% - 20px);
+        border: 1px solid #BBF7D0;
+        aspect-ratio: 1 / 1;
+        justify-content: center;
+
+        .anticon {
+            font-size: 18px;
+            color: #ffff;
+        }
+    }
+
+    &__token-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #ffff;
+        line-height: 1;
+        font-family: sans-serif;
+    }
+
+    &__token-label {
+        font-size: 10px;
+        color: #ffff;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: sans-serif;
+    }
+}
+
+.layout-nav-item {
+    width: calc(100% - 20px);
+    padding: 14px 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #6B7280;
+    font-size: 11px;
+    border-radius: 12px;
+    transition: background 0.15s, color 0.15s;
+
+    .anticon {
+        font-size: 26px;
+        color: #6B7280;
+        transition: 0.15s;
+    }
+
+    &:hover {
+        background: #F0FDF4;
+        color: #15803D;
+
+        .anticon {
+            color: #15803D;
+        }
+    }
+
+    &.active {
+        background: #DCFCE7;
+        color: #16A34A;
+
+        .anticon {
+            color: #16A34A;
+        }
+    }
+}
+
+// ── Right column ──────────────────────────────────────────
+.layout-right-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: #fff;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 100px;
+        top: 0;
+        width: 1px;
+        height: 100vh;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.08);
+        pointer-events: none;
+        z-index: 10;
+    }
+}
+
+// ── Header ────────────────────────────────────────────────
+.layout-header {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; // left + right
+    padding: 0 24px;
+    flex-shrink: 0;
+    background: #fff;
+    font-family: sans-serif;
+
+    // ── Left ──
+    &__left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    &__page-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    &__status {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: #F0FDF4;
+        border: 1px solid #BBF7D0;
+        border-radius: 999px;
+        padding: 3px 10px;
+        font-size: 12px;
+        color: #16A34A;
+        font-weight: 500;
+    }
+
+    &__status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #16A34A;
+        animation: pulse-green 1.8s ease-in-out infinite;
+    }
+
+    // ── Right ──
+    &__right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    &__icon-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: none;
+        background: transparent;
+        color: #6B7280;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+
+        &:hover {
+            background: #F0FDF4;
+            color: #16A34A;
+        }
+    }
+
+    &__divider {
+        width: 1px;
+        height: 28px;
+        background: #E5E7EB;
+        margin: 0 6px;
+    }
+
+    &__user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 999px;
+        transition: background 0.15s;
+
+        &:hover {
+            background: #F0FDF4;
+        }
+    }
+
+    &__avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #16A34A;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    &__user-info {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+
+    &__username {
+        font-size: 13px;
+        font-weight: 600;
+        color: #111827;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+    &__user-role {
+        font-size: 11px;
+        color: #6B7280;
+        white-space: nowrap;
+    }
+}
+
+// ── Main ──────────────────────────────────────────────────
+.layout-main {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    background: #F0FDF4;
+    border-top-left-radius: 16px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+
+    >* {
+        flex: 1;
+        min-height: 0;
+    }
+}
+
+// ── Animation ─────────────────────────────────────────────
+@keyframes pulse-green {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
