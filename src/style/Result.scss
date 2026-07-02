@@ -1,0 +1,179 @@
+.result-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  overflow: hidden;
+}
+
+.result-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.result-back {
+  position: absolute;
+  top: 24px;
+  left: 20px;
+  z-index: 5;
+  color: white !important;
+}
+
+.result-card {
+  position: relative;
+  z-index: 2;
+
+  width: min(92%, 430px);
+
+  padding: 36px 28px;
+
+  border-radius: 28px;
+
+  background: rgba(255, 255, 255, 0.18);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border: 1px solid rgba(255, 255, 255, 0.35);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, .35);
+
+  text-align: center;
+
+  transform: translateY(8vh);
+}
+
+.result-grade {
+  .label {
+    color: white;
+    opacity: .9;
+    margin-bottom: 14px;
+  }
+}
+
+.grade-circle {
+  width: 110px;
+  height: 110px;
+
+  border-radius: 50%;
+  border: 5px solid;
+
+  margin: auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255,255,255,.6);
+
+  span {
+    font-size: 58px;
+    font-weight: 700;
+  }
+}
+
+.credits {
+  margin-top: 30px;
+
+  .label {
+    color: rgba(255,255,255,.9);
+  }
+
+  .credit-value {
+    font-size: 72px;
+    font-weight: bold;
+    color: #31d158;
+    line-height: 1;
+    margin-top: 6px;
+  }
+
+  .credit-text {
+    color: #c8ffd2;
+    font-size: 16px;
+  }
+}
+
+.stats {
+  margin-top: 36px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 24px;
+
+  .divider {
+    width: 1px;
+    height: 70px;
+    background: rgba(255,255,255,.35);
+  }
+
+  .item {
+    flex: 1;
+  }
+
+  .number {
+    font-size: 40px;
+    font-weight: bold;
+  }
+
+  .water {
+    color: #66c6ff;
+  }
+
+  .co2 {
+    color: #ffc95c;
+  }
+
+  .desc {
+    margin-top: 8px;
+    font-size: 13px;
+    color: rgba(255,255,255,.85);
+  }
+}
+
+.thank {
+  margin-top: 36px;
+
+  color: white;
+  opacity: .95;
+
+  line-height: 1.8;
+  font-size: 15px;
+}
+
+.ok-btn {
+  margin-top: 34px;
+
+  width: 180px;
+  height: 50px;
+
+  border-radius: 999px;
+
+  background: #1bb44a !important;
+  border-color: #1bb44a !important;
+
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.result-empty {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 20px;
+}

@@ -18,18 +18,18 @@ export default function SettingsModal({ open, onClose }: Props) {
 
   return (
     <Modal
-      title="Cài đặt"
+      title="Settings"
       open={open}
       onOk={handleOk}
       onCancel={onClose}
-      okText="Lưu"
-      cancelText="Huỷ"
+      okText="Save"
+      cancelText="Cancel"
     >
       <Form form={form} layout="vertical">
         <Form.Item
           name="geminiKey"
           label="Gemini API Key"
-          rules={[{ required: true, message: 'Nhập API key' }]}
+          rules={[{ required: true, message: 'Enter API key' }]}
         >
           <Input.Password placeholder="AIza..." />
         </Form.Item>

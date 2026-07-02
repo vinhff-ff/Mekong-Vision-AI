@@ -1,8 +1,8 @@
 import { MobileOutlined, DesktopOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import Logo from '../assets/logo.png'
-
+import { useGreenLedger } from '../home/hook/useGreenLedger'
 type View = 'mobile' | 'desktop'
 
 const navItems = [
@@ -13,6 +13,19 @@ const navItems = [
 export default function Layout() {
     const [view, setView] = useState<View>('desktop')
     const navigate = useNavigate()
+    const { getTotals } = useGreenLedger()
+    const [credits, setCredits] = useState(() => getTotals().totalCredits)
+
+    useEffect(() => {
+        const refresh = () => setCredits(getTotals().totalCredits)
+
+        // Đồng bộ nếu localStorage đổi từ tab khác
+        window.addEventListener('storage', refresh)
+
+        return () => {
+            window.removeEventListener('storage', refresh)
+        }
+    }, [])
 
     return (
         <div className="layout-wrapper">
@@ -40,8 +53,7 @@ export default function Layout() {
 
                 {/* Token badge ở cuối sidebar */}
                 <div className="layout-sidebar__token">
-                 
-                    <span className="layout-sidebar__token-value">128</span>
+                    <span className="layout-sidebar__token-value">{credits}</span>
                     <span className="layout-sidebar__token-label">credits</span>
                 </div>
             </aside>

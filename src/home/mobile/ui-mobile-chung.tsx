@@ -7,11 +7,11 @@ import {
 import { Dropdown, Spin } from 'antd'
 import type { MenuProps } from 'antd'
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom' // Import để điều hướng
+import { useNavigate } from 'react-router-dom'
 import type { AIMode } from '../../types/ai'
 import GeminiIcon from '../../components/GeminiIcon'
 import SettingsModal from '../../components/SettingsModal'
-import { useCaptureFlow } from '../hook/useCaptureFlow' // Import hook logic
+import { useCaptureFlow } from '../hook/useCaptureFlow'
 
 const AIIcon = ({ mode }: { mode: AIMode }) =>
   mode === 'gemini' ? <GeminiIcon size={18} /> : <RobotOutlined />
@@ -21,15 +21,16 @@ export default function Mobile() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [geminiKey] = useState(() => localStorage.getItem('gemini_key') ?? '')
   const [spinning, setSpinning] = useState(false)
+  const [frozenFrame, setFrozenFrame] = useState<string | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const navigate = useNavigate()
 
-  // Hook xử lý luồng chụp ảnh
   const { capture, result, loading, ready } = useCaptureFlow(videoRef, aiMode, geminiKey)
 
   useEffect(() => {
-    // Ưu tiên camera sau trên thiết bị di động
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    // Mobile: dùng cam trước (user) -> cần mirror giống desktop
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
       .then(stream => {
         if (videoRef.current) videoRef.current.srcObject = stream
       })
@@ -42,7 +43,28 @@ export default function Mobile() {
     }
   }, [])
 
+  const snapFrame = () => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    if (!video || !canvas) return
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    // cam trước bị mirror trên UI -> flip lại khi vẽ để khớp với cái mắt nhìn thấy
+    ctx.save()
+    ctx.translate(canvas.width, 0)
+    ctx.scale(-1, 1)
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    ctx.restore()
+
+    setFrozenFrame(canvas.toDataURL('image/jpeg', 0.9))
+  }
+
   const handleCapture = async () => {
+    snapFrame()
     setSpinning(true)
     const res = await capture()
     setSpinning(false)
@@ -52,27 +74,46 @@ export default function Mobile() {
   }
 
   const aiMenuItems: MenuProps['items'] = [
-    { key: 'built-in', icon: <RobotOutlined />, label: 'AI mặc định' },
-    { key: 'gemini', icon: <GeminiIcon size={16} />, label: 'Gemini' },
+    { key: 'built-in', icon: <RobotOutlined />, label: 'Default AI' },
+    // { key: 'gemini', icon: <GeminiIcon size={16} />, label: 'Gemini' },
   ]
 
   return (
     <div className="mobile-page">
-      <button className="mobile-setting-btn" onClick={() => setSettingsOpen(true)}>
+      {/* <button className="mobile-setting-btn" onClick={() => setSettingsOpen(true)}>
         <SettingOutlined />
-      </button>
+      </button> */}
 
       <div className="mobile-camera">
-        <video ref={videoRef} autoPlay playsInline muted className="mobile-video" />
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className="mobile-video"
+          style={{ transform: 'scaleX(-1)' }}
+        />
 
-        {/* Overlay khi đang xử lý */}
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
+
+        {frozenFrame && spinning && (
+          <img
+            src={frozenFrame}
+            alt="captured frame"
+            style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        )}
+
         {spinning && (
           <div className="mobile-spin-overlay">
             <Spin size="large" />
           </div>
         )}
 
-        {/* Kết quả hiển thị trên mobile (giống desktop) */}
         {result && !spinning && (
           <div className="mobile-result">
             {result.predictions.map(p => (
@@ -99,9 +140,8 @@ export default function Mobile() {
           </button>
         </Dropdown>
 
-        {/* Nút chụp đã gắn hàm handleCapture */}
-        <button 
-          className="mobile-bar__capture" 
+        <button
+          className="mobile-bar__capture"
           onClick={handleCapture}
           disabled={spinning || loading || (aiMode === 'built-in' && !ready)}
         >

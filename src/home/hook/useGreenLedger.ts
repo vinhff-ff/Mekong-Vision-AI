@@ -22,6 +22,7 @@ export interface LedgerEntry {
   vwSaved:    number
   co2Avoided: number
   credits:    number
+  image:      string   // base64 dataURL của ảnh chụp
 }
 
 export interface LedgerTotals {
@@ -44,7 +45,7 @@ function readStorage(): LedgerEntry[] {
 }
 
 export function useGreenLedger() {
-  const addEntry = (className: string): LedgerEntry => {
+  const addEntry = (className: string, image: string): LedgerEntry => {
     const p = CLASS_PARAMS[className] ?? DEFAULT_PARAMS
     const entry: LedgerEntry = {
       id:         crypto.randomUUID(),
@@ -54,6 +55,7 @@ export function useGreenLedger() {
       vwSaved:    p.vwPerItem,
       co2Avoided: p.co2PerItem,
       credits:    p.credits,
+      image,
     }
     const prev = readStorage()
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...prev, entry]))

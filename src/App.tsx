@@ -4,6 +4,7 @@ import Desktop from './home/desktop/desktop'
 import Mobile from './home/mobile/mobile'
 import './style/index.scss'
 import Result from './components/Result'
+import Admin from './home/Admin'
 export default function App() {
   return (
     <BrowserRouter>
@@ -15,6 +16,7 @@ export default function App() {
         </Route>
         <Route >
           <Route path="/result" element={<Result />} />
+          <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>
 

@@ -12,11 +12,18 @@ export interface CaptureResult {
   entry: LedgerEntry
 }
 
+// Video đang hiển thị mirror (scaleX(-1) ở CSS) -> flip lại khi vẽ ra canvas
+// để ảnh lưu khớp với cái mắt người dùng nhìn thấy trên khung hình.
 function snapFrame(video: HTMLVideoElement): string {
   const canvas = document.createElement('canvas')
   canvas.width = video.videoWidth
   canvas.height = video.videoHeight
-  canvas.getContext('2d')!.drawImage(video, 0, 0)
+  const ctx = canvas.getContext('2d')!
+  ctx.save()
+  ctx.translate(canvas.width, 0)
+  ctx.scale(-1, 1)
+  ctx.drawImage(video, 0, 0)
+  ctx.restore()
   return canvas.toDataURL('image/jpeg', 0.85)
 }
 
@@ -42,16 +49,17 @@ export function useCaptureFlow(
     console.log('▶ capture start, aiMode:', aiMode, 'ready:', ready)
 
     try {
+      // Chụp 1 lần duy nhất, dùng chung cho cả predict (Gemini) lẫn lưu ledger
+      const image = snapFrame(videoRef.current)
       let predictions: TMPrediction[] = []
 
       if (aiMode === 'built-in') {
-        if (!ready) throw new Error('Model chưa load xong')
+        if (!ready) throw new Error('Model not loaded yet')
         console.log('▶ predicting...')
         predictions = await predict(videoRef.current)
         console.log('✅ predictions:', predictions)
       } else {
-        if (!geminiKey) throw new Error('Chưa nhập Gemini API key')
-        const base64 = snapFrame(videoRef.current)
+        if (!geminiKey) throw new Error('Gemini API key not entered')
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
           {
@@ -61,12 +69,12 @@ export function useCaptureFlow(
               contents: [{
                 parts: [
                   {
-                    text: 'Phân loại quần áo trong ảnh. Chỉ trả về JSON {"className":"Class 1"|"Class 2"|"Class 3","probability":0.0-1.0}. Không markdown, không giải thích.',
+                    text: 'Classify the clothing in the image. Only return JSON {"className":"Class 1"|"Class 2"|"Class 3","probability":0.0-1.0}. No markdown, no explanation.',
                   },
                   {
                     inline_data: {
                       mime_type: 'image/jpeg',
-                      data: base64.split(',')[1],
+                      data: image.split(',')[1],
                     },
                   },
                 ],
@@ -82,14 +90,14 @@ export function useCaptureFlow(
 
       const sorted = [...predictions].sort((a, b) => b.probability - a.probability)
       const topClass = sorted[0].className
-      const entry = addEntry(topClass)
+      const entry = addEntry(topClass, image)
 
       const captureResult: CaptureResult = { predictions: sorted, topClass, entry }
       setResult(captureResult)
       return captureResult
 
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Lỗi không xác định')
+      setError(e instanceof Error ? e.message : 'Unknown error')
     } finally {
       setLoading(false)
     }

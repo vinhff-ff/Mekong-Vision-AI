@@ -2,7 +2,7 @@ import {
   CameraOutlined,
   RobotOutlined,
   PieChartOutlined,
-  SettingOutlined,
+  // SettingOutlined,
 } from '@ant-design/icons'
 import { Dropdown, Spin } from 'antd'
 import type { MenuProps } from 'antd'
@@ -23,13 +23,15 @@ export default function Desktop() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [geminiKey] = useState(() => localStorage.getItem('gemini_key') ?? '')
   const [spinning, setSpinning] = useState(false)
+  const [frozenFrame, setFrozenFrame] = useState<string | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const navigate = useNavigate()
 
   const { capture, result, loading, error, ready } = useCaptureFlow(videoRef, aiMode, geminiKey)
 
   useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ video: true })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
       .then(stream => {
         if (videoRef.current) videoRef.current.srcObject = stream
       })
@@ -44,25 +46,44 @@ export default function Desktop() {
     }
   }, [])
 
+  const snapFrame = () => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    if (!video || !canvas) return
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    ctx.save()
+    ctx.translate(canvas.width, 0)
+    ctx.scale(-1, 1) // lật lại đúng chiều mirror đang hiển thị
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    ctx.restore()
+
+    setFrozenFrame(canvas.toDataURL('image/jpeg', 0.9))
+  }
+
   const handleCapture = async () => {
+    snapFrame()
     setSpinning(true)
-    await new Promise(r => setTimeout(r, 500))
     const res = await capture()
     setSpinning(false)
-    navigate('/result', { state: { entry: res?.entry } }) // truyền entry hiện tại
+    navigate('/result', { state: { entry: res?.entry } })
   }
 
   const aiMenuItems: MenuProps['items'] = [
     {
       key: 'built-in',
       icon: <RobotOutlined style={{ fontSize: 16 }} />,
-      label: 'AI mặc định',
+      label: 'Default AI',
     },
-    {
-      key: 'gemini',
-      icon: <GeminiIcon size={16} />,
-      label: 'Gemini',
-    },
+    // {
+    //   key: 'gemini',
+    //   icon: <GeminiIcon size={16} />,
+    //   label: 'Gemini',
+    // },
   ]
 
   return (
@@ -70,9 +91,29 @@ export default function Desktop() {
 
       {/* CAMERA */}
       <div className="desktop-camera">
-        <video ref={videoRef} autoPlay playsInline muted className="desktop-video" />
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className="desktop-video"
+          style={{ transform: 'scaleX(-1)' }}
+        />
 
-        {/* SPIN OVERLAY */}
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
+
+        {frozenFrame && spinning && (
+          <img
+            src={frozenFrame}
+            alt="captured frame"
+            style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        )}
+
         {spinning && (
           <div style={{
             position: 'absolute', inset: 0,
@@ -139,12 +180,12 @@ export default function Desktop() {
       </div>
 
       {/* SETTINGS */}
-      <button
+      {/* <button
         className="desktop-setting-btn"
         onClick={() => setSettingsOpen(true)}
       >
         <SettingOutlined />
-      </button>
+      </button> */}
 
       <SettingsModal
         open={settingsOpen}
